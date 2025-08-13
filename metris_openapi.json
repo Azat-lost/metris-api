@@ -2,21 +2,29 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Metris Flats API",
-    "version": "1.1.0",
-    "description": "API для получения списка квартир с сайта Metris.pro с возможностью фильтрации по городу, цене и количеству комнат"
+    "version": "1.1.1",
+    "description": "Неофициальное API для получения списка квартир с Metris.pro. Все параметры фильтра опциональны."
   },
   "servers": [
-    {
-      "url": "https://metris.pro"
-    }
+    { "url": "https://metris.pro" }
   ],
   "paths": {
     "/local/components/metris_main/building_list/ajax/getFlats.php": {
       "post": {
-        "summary": "Получить список квартир с фильтрами",
-        "description": "Возвращает список квартир в JSON-формате",
+        "operationId": "getFlats",
+        "summary": "Получить список квартир",
+        "description": "Возвращает список квартир. Тело передается как application/x-www-form-urlencoded. Параметры такие же, как в веб-фильтре.",
+        "parameters": [
+          {
+            "name": "Referer",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string", "default": "https://metris.pro/" },
+            "description": "Некоторым серверам требуется Referer. Оставь по умолчанию."
+          }
+        ],
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
@@ -24,43 +32,57 @@
                 "properties": {
                   "city": {
                     "type": "string",
-                    "example": "10258225_0",
-                    "description": "ID города (может быть несколько через запятую)"
-                  },
-                  "price_min": {
-                    "type": "integer",
-                    "example": 3000000,
-                    "description": "Минимальная цена"
-                  },
-                  "price_max": {
-                    "type": "integer",
-                    "example": 8000000,
-                    "description": "Максимальная цена"
+                    "description": "ID города (одно или несколько через запятую)",
+                    "example": "10258225_0"
                   },
                   "room_count": {
                     "type": "string",
-                    "example": "1,2,3",
-                    "description": "Количество комнат (перечисление через запятую)"
+                    "description": "Количество комнат, через запятую",
+                    "example": "1,2,3"
                   },
-                  "space_min": {
-                    "type": "integer",
-                    "example": 30,
-                    "description": "Минимальная площадь в м²"
-                  },
-                  "space_max": {
-                    "type": "integer",
-                    "example": 80,
-                    "description": "Максимальная площадь в м²"
-                  }
+                  "price_min": { "type": "integer", "example": 3000000 },
+                  "price_max": { "type": "integer", "example": 8000000 },
+                  "space_min": { "type": "number", "example": 30 },
+                  "space_max": { "type": "number", "example": 80 },
+                  "offset":   { "type": "integer", "description": "Пагинация: смещение", "example": 0 },
+                  "limit":    { "type": "integer", "description": "Пагинация: размер страницы", "example": 50 },
+                  "sort":     { "type": "string",  "description": "Поле сортировки (например: price|space|deadline)", "example": "price" },
+                  "order":    { "type": "string",  "enum": ["asc", "desc"], "example": "asc" }
                 },
-                "required": ["city"]
+                "additionalProperties": true
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Список квартир в JSON"
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "complex_count": { "type": "integer" },
+                    "flat": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "flat_id": { "type": "string" },
+                          "number": { "type": "string" },
+                          "complex_id": { "type": "string" },
+                          "room_count": { "type": "string" },
+                          "price_discount": { "type": "string" },
+                          "floors": { "type": "string" }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
           }
         }
       }
