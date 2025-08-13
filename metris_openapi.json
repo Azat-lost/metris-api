@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Metris Flats API",
-    "version": "1.1.1",
-    "description": "Неофициальное API для получения списка квартир с Metris.pro. Все параметры фильтра опциональны."
+    "version": "1.1.2",
+    "description": "Неофициальное API для получения списка квартир с Metris.pro"
   },
   "servers": [
     { "url": "https://metris.pro" }
@@ -13,16 +13,7 @@
       "post": {
         "operationId": "getFlats",
         "summary": "Получить список квартир",
-        "description": "Возвращает список квартир. Тело передается как application/x-www-form-urlencoded. Параметры такие же, как в веб-фильтре.",
-        "parameters": [
-          {
-            "name": "Referer",
-            "in": "header",
-            "required": false,
-            "schema": { "type": "string", "default": "https://metris.pro/" },
-            "description": "Некоторым серверам требуется Referer. Оставь по умолчанию."
-          }
-        ],
+        "description": "Возвращает список квартир. Тело передаётся как application/x-www-form-urlencoded.",
         "requestBody": {
           "required": false,
           "content": {
@@ -30,24 +21,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "city": {
-                    "type": "string",
-                    "description": "ID города (одно или несколько через запятую)",
-                    "example": "10258225_0"
-                  },
-                  "room_count": {
-                    "type": "string",
-                    "description": "Количество комнат, через запятую",
-                    "example": "1,2,3"
-                  },
-                  "price_min": { "type": "integer", "example": 3000000 },
-                  "price_max": { "type": "integer", "example": 8000000 },
-                  "space_min": { "type": "number", "example": 30 },
-                  "space_max": { "type": "number", "example": 80 },
-                  "offset":   { "type": "integer", "description": "Пагинация: смещение", "example": 0 },
-                  "limit":    { "type": "integer", "description": "Пагинация: размер страницы", "example": 50 },
-                  "sort":     { "type": "string",  "description": "Поле сортировки (например: price|space|deadline)", "example": "price" },
-                  "order":    { "type": "string",  "enum": ["asc", "desc"], "example": "asc" }
+                  "city":        { "type": "string",  "description": "ID города, можно несколько через запятую", "example": "10258225_0" },
+                  "room_count":  { "type": "string",  "description": "Кол-во комнат, через запятую",            "example": "1,2,3" },
+                  "price_min":   { "type": "integer", "example": 3000000 },
+                  "price_max":   { "type": "integer", "example": 8000000 },
+                  "space_min":   { "type": "number",  "example": 30 },
+                  "space_max":   { "type": "number",  "example": 80 },
+                  "offset":      { "type": "integer", "example": 0 },
+                  "limit":       { "type": "integer", "example": 50 },
+                  "sort":        { "type": "string",  "example": "price" },
+                  "order":       { "type": "string",  "enum": ["asc","desc"], "example": "asc" }
                 },
                 "additionalProperties": true
               }
@@ -58,7 +41,7 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
@@ -67,14 +50,6 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {
-                          "flat_id": { "type": "string" },
-                          "number": { "type": "string" },
-                          "complex_id": { "type": "string" },
-                          "room_count": { "type": "string" },
-                          "price_discount": { "type": "string" },
-                          "floors": { "type": "string" }
-                        },
                         "additionalProperties": true
                       }
                     }
